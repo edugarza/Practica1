@@ -64,6 +64,14 @@ def get_lower(storage):
     # En este punto, value tiene el menor valor disponible e index el proceso que lo tiene
     return index
 
+def finished(storage):
+    is_finished = True
+    for i in range(NPROD):
+        if storage[i][0] != -1:
+            is_finished = False
+            break
+    return is_finished
+
 
 def producer(storage, index, empty, non_empty, mutex):
     for v in range(N):
@@ -82,13 +90,15 @@ def consumer(storageList, indexList, emptyList, non_emptyList, mutexList, final)
     acquireList = []
     acquireList = [False for i in range(NPROD)]
     indice = 0
-    for k in range(NPROD*N):
+    while True:
         for idx in range(len(acquireList)):
             if not acquireList[idx]:
                 non_emptyList[idx].acquire()
                 acquireList[idx] = True
 
         # Si estamos aqui es porque hay datos disponibles de los 3 productores
+        # Si ya tenemos todos los storages con -1 terminamos el bucle
+        if finished(storageList): break
         i = get_lower(storageList)
         acquireList[i] = False
         dato = get_data(storageList[i], indexList[i], mutexList[i])
